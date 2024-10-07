@@ -37,6 +37,12 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public Page<Product> getAllProductsPagination(Integer pageNo, Integer pageSize) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		return productRepository.findAll(pageable);
+	}
+
+	@Override
 	public Boolean deleteProduct(Integer id) {
 		Product product = productRepository.findById(id).orElse(null);
 
@@ -55,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public Product updateProduct(Product product, MultipartFile image) {
+
 		Product dbProduct = getProductById(product.getId());
 
 		String imageName = image.isEmpty() ? dbProduct.getImage() : image.getOriginalFilename();
@@ -109,12 +116,18 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<Product> searchProduct(String ch) {
-		// TODO Auto-generated method stub
-		return null;
+		return productRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(ch, ch);
+	}
+
+	@Override
+	public Page<Product> searchProductPagination(Integer pageNo, Integer pageSize, String ch) {
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+		return productRepository.findByTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(ch, ch, pageable);
 	}
 
 	@Override
 	public Page<Product> getAllActiveProductPagination(Integer pageNo, Integer pageSize, String category) {
+
 		Pageable pageable = PageRequest.of(pageNo, pageSize);
 		Page<Product> pageProduct = null;
 
@@ -127,21 +140,20 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
-	public Page<Product> searchProductPagination(Integer pageNo, Integer pageSize, String ch) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Page<Product> getAllProductsPagination(Integer pageNo, Integer pageSize) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Page<Product> searchActiveProductPagination(Integer pageNo, Integer pageSize, String category, String ch) {
-		// TODO Auto-generated method stub
-		return null;
+
+		Page<Product> pageProduct = null;
+		Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+		pageProduct = productRepository.findByisActiveTrueAndTitleContainingIgnoreCaseOrCategoryContainingIgnoreCase(ch,
+				ch, pageable);
+
+//		if (ObjectUtils.isEmpty(category)) {
+//			pageProduct = productRepository.findByIsActiveTrue(pageable);
+//		} else {
+//			pageProduct = productRepository.findByCategory(pageable, category);
+//		}
+		return pageProduct;
 	}
 
 }
